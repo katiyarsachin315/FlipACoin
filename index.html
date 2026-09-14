@@ -15,52 +15,68 @@ h1{margin:0;font-size:30px;font-weight:750;letter-spacing:-.8px}
 .coin{width:235px;height:235px;border-radius:50%;background:linear-gradient(145deg,#ff4f9a,#e82e83);box-shadow:0 18px 35px rgba(232,46,131,.25),inset 0 2px 5px rgba(255,255,255,.35),inset 0 -5px 10px rgba(150,0,70,.12);display:flex;align-items:center;justify-content:center;position:relative}
 .coin::before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px dashed rgba(255,255,255,.65)}
 .coin-text{color:white;font-size:25px;font-weight:800;letter-spacing:2px;z-index:2;text-shadow:0 2px 5px rgba(100,0,50,.15)}
-.coin.flipping{
-    animation:coinFlip .55s cubic-bezier(.45,.05,.55,.95) infinite;
-    transform-style:preserve-3d;
-}
-@keyframes coinFlip{
-    0%{
-        transform:rotateY(0deg) scale(1);
-    }
-    20%{
-        transform:rotateY(72deg) scale(1.08);
-    }
-    35%{
-        transform:rotateY(126deg) scaleX(.18) scaleY(1.02);
-    }
-    50%{
-        transform:rotateY(180deg) scale(1.10);
-    }
-    65%{
-        transform:rotateY(234deg) scaleX(.18) scaleY(1.02);
-    }
-    80%{
-        transform:rotateY(288deg) scale(1.06);
-    }
-    100%{
-        transform:rotateY(360deg) scale(1);
-    }
-}
-.coin.heads{
-    background:linear-gradient(145deg,#ff4f9a,#e82e83);
-}
-.coin.tails{
-    background:linear-gradient(145deg,#222,#050505);
-    box-shadow:
-        0 18px 35px rgba(0,0,0,.22),
-        inset 0 2px 5px rgba(255,255,255,.18),
-        inset 0 -5px 10px rgba(0,0,0,.3);
-}
+.coin.flipping{animation:coinFlip .42s linear infinite}
+@keyframes coinFlip{0%{transform:rotateY(0deg)}50%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
 .flip-button{width:100%;max-width:290px;height:58px;border:none;border-radius:15px;background:#171717;color:white;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.14);transition:transform .15s ease,opacity .2s ease}
 .flip-button:active{transform:scale(.97)}
 .flip-button:disabled{opacity:.45;cursor:default}
 
 /* Secret controls: just below the main button, no visible text */
-.secret-controls{width:min(290px,100%);height:38px;display:flex;gap:18px;margin-top:18px;opacity:0;pointer-events:none;transition:opacity .2s ease}
-.secret-controls.active{opacity:1;pointer-events:auto}
-.secret-zone{flex:1;border-radius:10px;border:1px solid rgba(80,80,80,.055);background:rgba(80,80,80,.035);cursor:pointer;transition:background .15s ease,transform .1s ease}
-.secret-zone:active{background:rgba(120,80,120,.14);transform:scale(.97)}
+.secret-controls{
+    width:min(290px,100%);
+    height:34px;
+    display:flex;
+    gap:18px;
+    margin-top:18px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+}
+.secret-controls.active{
+    opacity:1;
+    pointer-events:auto;
+}
+.secret-zone{
+    flex:1;
+    position:relative;
+    border:0;
+    border-radius:14px;
+    background:transparent;
+    cursor:pointer;
+    transition:transform .1s ease;
+}
+.secret-zone::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:42px;
+    height:4px;
+    transform:translate(-50%,-50%);
+    border-radius:999px;
+    background:rgba(120,120,130,.045);
+}
+.secret-zone::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:7px;
+    height:7px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:rgba(120,120,130,.07);
+    box-shadow:0 0 10px rgba(150,100,150,.035);
+}
+.secret-zone:active{
+    transform:scale(.97);
+}
+.secret-zone:active::before{
+    background:rgba(120,120,130,.09);
+}
+.secret-zone:active::after{
+    background:rgba(120,80,130,.18);
+}
 
 @media(max-width:480px){
 .app{padding-top:28px}
@@ -78,7 +94,7 @@ h1{font-size:28px}
     <div class="subtitle">Flip a virtual coin with this online and free app.</div>
 
     <div class="coin-area">
-        <div class="coin heads" id="coin">
+        <div class="coin" id="coin">
             <div class="coin-text" id="coinText">HEADS</div>
         </div>
     </div>
@@ -101,15 +117,7 @@ const tailsZone=document.getElementById("tailsZone");
 
 let flipping=false;
 let selectedResult=null;
-let faceTimer=null;
-
 const FLIP_TIME=2600;
-
-function setFace(face){
-    coin.classList.remove("heads","tails");
-    coin.classList.add(face.toLowerCase());
-    coinText.textContent=face;
-}
 
 flipButton.addEventListener("click",()=>{
     if(flipping)return;
@@ -122,26 +130,11 @@ flipButton.addEventListener("click",()=>{
     coin.classList.add("flipping");
     secretControls.classList.add("active");
 
-    /*
-       While the coin is spinning, alternate the visible
-       face so it looks like a real two-sided coin.
-    */
-    let spinFace="HEADS";
-
-    faceTimer=setInterval(()=>{
-        spinFace=spinFace==="HEADS" ? "TAILS" : "HEADS";
-        setFace(spinFace);
-    },275);
-
     setTimeout(()=>{
-        clearInterval(faceTimer);
-        faceTimer=null;
-
         flipping=false;
         coin.classList.remove("flipping");
 
-        // If owner selected a result, use it.
-        // Otherwise automatically choose randomly.
+        // No secret selection? Pick randomly.
         if(!selectedResult){
             selectedResult=Math.random()<0.5 ? "HEADS" : "TAILS";
         }
@@ -150,20 +143,21 @@ flipButton.addEventListener("click",()=>{
     },FLIP_TIME);
 });
 
-// Left subtle zone = HEADS
+// Left subtle area -> HEADS
 headsZone.addEventListener("click",()=>{
     if(flipping) selectedResult="HEADS";
 });
 
-// Right subtle zone = TAILS
+// Right subtle area -> TAILS
 tailsZone.addEventListener("click",()=>{
     if(flipping) selectedResult="TAILS";
 });
 
 function revealResult(){
-    setFace(selectedResult);
+    coinText.textContent=selectedResult;
     secretControls.classList.remove("active");
 
+    // Fully reset so Flip works again
     selectedResult=null;
     flipping=false;
     flipButton.disabled=false;
