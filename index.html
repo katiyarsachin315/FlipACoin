@@ -83,6 +83,7 @@ h1{font-size:28px}
 const coin=document.getElementById("coin");
 const coinText=document.getElementById("coinText");
 const flipButton=document.getElementById("flipButton");
+const subtitle=document.querySelector(".subtitle");
 const secretControls=document.getElementById("secretControls");
 const headsZone=document.getElementById("headsZone");
 const tailsZone=document.getElementById("tailsZone");
@@ -110,7 +111,7 @@ function positionSecretZones(){
         left=window.innerWidth-width-4;
     }
 
-    const top=Math.max(0, coinRect.top-75);
+    const top=subtitle.getBoundingClientRect().bottom+10;
     const divider=coinRect.top+(coinRect.height/2);
     const bottom=Math.max(divider+1,buttonRect.top-10);
 
