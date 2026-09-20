@@ -22,31 +22,38 @@ h1{margin:0;font-size:30px;font-weight:750;letter-spacing:-.8px}
 .flip-button:disabled{opacity:.45;cursor:default}
 
 /* Secret controls: just below the main button, no visible text */
-Q0px;
-    width:100px;
-    height:230px;
+.secret-controls{
+    position:absolute;
+    left:calc(50% + 105px);
+    top:325px;
+    width:120px;
+    height:450px;
     display:flex;
     flex-direction:column;
     gap:0;
     opacity:0;
     pointer-events:none;
-    z-index:20;
+    z-index:50;
 }
 .secret-controls.active{
-    opacity:0;
+    opacity:1;
     pointer-events:auto;
 }
-P0px;
+.secret-zone{
+    width:120px;
+    height:225px;
     flex:none;
-    border:0;
-    background:transparent;
+    border:1px solid rgba(220,70,80,.30);
+    background:rgba(220,70,80,.025);
     border-radius:0;
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
 }
+.secret-zone:first-child{
+    border-bottom:2px solid rgba(220,70,80,.35);
+}
 .secret-zone:active{
-    background:transparent;
-    transform:none;
+    background:rgba(220,70,80,.06);
 }
 
 @media(max-width:480px){
@@ -56,20 +63,12 @@ h1{font-size:28px}
 .coin-area{margin-bottom:35px}
 .coin{width:220px;height:220px}
 }
-</style>
-
-<style id="debug-touch-zones">
-/* TEMP DEBUG: remove this block later to make zones invisible again */
+/* DEBUG: visible touch areas for positioning check */
 .secret-controls{
     opacity:1 !important;
     pointer-events:auto !important;
 }
-.secret-zone{
-    background:rgba(255, 0, 0, 0.025) !important;
-    border:1px solid rgba(220, 70, 80, 0.28) !important;
-}
 </style>
-
 </head>
 <body>
 <div class="app">
