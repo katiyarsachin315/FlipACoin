@@ -110,7 +110,7 @@ function positionSecretZones(){
         left=window.innerWidth-width-4;
     }
 
-    const top=coinRect.top;
+    const top=Math.max(0, coinRect.top-75);
     const divider=coinRect.top+(coinRect.height/2);
     const bottom=Math.max(divider+1,buttonRect.top-10);
 
