@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#fff 0%,#faf7ff 100%);display:flex;justify-content:center;align-items:center;color:#171717;overflow:hidden}
-.app{position:relative;width:100%;max-width:430px;min-height:100vh;padding:35px 24px 30px;display:flex;flex-direction:column;align-items:center}
+.app{width:100%;max-width:430px;min-height:100vh;padding:35px 24px 30px;display:flex;flex-direction:column;align-items:center}
 .top-icon{width:54px;height:54px;border-radius:14px;background:#f1f1f4;display:flex;align-items:center;justify-content:center;font-size:27px;margin-bottom:20px}
 h1{margin:0;font-size:30px;font-weight:750;letter-spacing:-.8px}
 .subtitle{margin:9px 0 35px;color:#737373;font-size:15px;text-align:center}
@@ -23,35 +23,29 @@ h1{margin:0;font-size:30px;font-weight:750;letter-spacing:-.8px}
 
 /* Secret controls: just below the main button, no visible text */
 .secret-controls{
-    position:absolute;
-    left:calc(50% + 105px);
-    top:325px;
-    width:120px;
-    height:450px;
+    position:fixed;
     display:flex;
     flex-direction:column;
     gap:0;
-    opacity:0;
-    pointer-events:none;
-    z-index:50;
-}
-.secret-controls.active{
+    z-index:100;
     opacity:1;
     pointer-events:auto;
 }
+
 .secret-zone{
-    width:120px;
-    height:225px;
+    width:100%;
     flex:none;
-    border:1px solid rgba(220,70,80,.30);
+    border:1px solid rgba(220,70,80,.28);
     background:rgba(220,70,80,.025);
     border-radius:0;
     cursor:pointer;
     -webkit-tap-highlight-color:transparent;
 }
+
 .secret-zone:first-child{
     border-bottom:2px solid rgba(220,70,80,.35);
 }
+
 .secret-zone:active{
     background:rgba(220,70,80,.06);
 }
@@ -62,11 +56,6 @@ h1{font-size:28px}
 .subtitle{margin-bottom:28px}
 .coin-area{margin-bottom:35px}
 .coin{width:220px;height:220px}
-}
-/* DEBUG: visible touch areas for positioning check */
-.secret-controls{
-    opacity:1 !important;
-    pointer-events:auto !important;
 }
 </style>
 </head>
@@ -102,6 +91,41 @@ let flipping=false;
 let selectedResult=null;
 const FLIP_TIME=2600;
 
+/*
+  Touch-zone layout:
+  - Above the coin's exact vertical center = HEADS
+  - Below the coin's exact vertical center = TAILS
+  - Bottom stops 10px before the Flip button
+  - Zone is immediately to the right of the coin
+*/
+function positionSecretZones(){
+    const coinRect=coin.getBoundingClientRect();
+    const buttonRect=flipButton.getBoundingClientRect();
+
+    const width=Math.min(120, window.innerWidth*0.22);
+
+    let left=coinRect.right+6;
+
+    if(left+width > window.innerWidth-4){
+        left=window.innerWidth-width-4;
+    }
+
+    const top=coinRect.top;
+    const divider=coinRect.top+(coinRect.height/2);
+    const bottom=Math.max(divider+1,buttonRect.top-10);
+
+    secretControls.style.left=`${left}px`;
+    secretControls.style.top=`${top}px`;
+    secretControls.style.width=`${width}px`;
+    secretControls.style.height=`${bottom-top}px`;
+
+    headsZone.style.height=`${divider-top}px`;
+    tailsZone.style.height=`${bottom-divider}px`;
+}
+
+window.addEventListener("resize",positionSecretZones);
+window.addEventListener("scroll",positionSecretZones);
+
 flipButton.addEventListener("click",()=>{
     if(flipping)return;
 
@@ -111,13 +135,14 @@ flipButton.addEventListener("click",()=>{
 
     coinText.textContent="?";
     coin.classList.add("flipping");
-    secretControls.classList.add("active");
+
+    positionSecretZones();
 
     setTimeout(()=>{
         flipping=false;
         coin.classList.remove("flipping");
 
-        // No secret selection? Pick randomly.
+        // If no secret choice was made, choose randomly.
         if(!selectedResult){
             selectedResult=Math.random()<0.5 ? "HEADS" : "TAILS";
         }
@@ -126,25 +151,25 @@ flipButton.addEventListener("click",()=>{
     },FLIP_TIME);
 });
 
-// Left subtle area -> HEADS
+// Upper zone = HEADS
 headsZone.addEventListener("click",()=>{
     if(flipping) selectedResult="HEADS";
 });
 
-// Right subtle area -> TAILS
+// Lower zone = TAILS
 tailsZone.addEventListener("click",()=>{
     if(flipping) selectedResult="TAILS";
 });
 
 function revealResult(){
     coinText.textContent=selectedResult;
-    secretControls.classList.remove("active");
 
-    // Fully reset so Flip works again
     selectedResult=null;
     flipping=false;
     flipButton.disabled=false;
 }
+
+positionSecretZones();
 </script>
 </body>
 </html>
