@@ -24,24 +24,24 @@ h1{margin:0;font-size:30px;font-weight:750;letter-spacing:-.8px}
 /* Secret controls: just below the main button, no visible text */
 .secret-controls{
     position:absolute;
-    left:calc(50% + 108px);
-    top:340px;
-    width:64px;
-    height:150px;
+    left:calc(50% + 105px);
+    top:300px;
+    width:100px;
+    height:230px;
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:0;
     opacity:0;
     pointer-events:none;
-    z-index:10;
+    z-index:20;
 }
 .secret-controls.active{
     opacity:0;
     pointer-events:auto;
 }
 .secret-zone{
-    width:64px;
-    height:70px;
+    width:100%;
+    height:115px;
     flex:none;
     border:0;
     background:transparent;
